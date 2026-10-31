@@ -1,0 +1,1957 @@
+version: 2.1
+
+jobs:
+  route_v6-preview4:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: Fold integer series
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; seq 1 491399 | awk '{if($1%97==0)c++}END{print c}'; true ; } > /tmp/data/31.data
+            echo "gate v6-preview4: $(wc -c </tmp/data/31.data) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - 31.data
+  v6-preview4:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load artifact
+          command: |
+            cat /tmp/data/31.data
+      - run:
+          name: Prepare source
+          command: git clone --depth 1 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Fetch corpus
+          command: tar -I bzip2 -xf release-pkg.tar.bz2
+      - run:
+          name: Index artifacts
+          command: cat /proc/cpuinfo | head -5
+      - run:
+          name: Finalize build
+          command: g++ --version
+      - run:
+          name: Package artifacts
+          command: g++ --version
+      - run:
+          no_output_timeout: 80m
+          command: env ./adapter
+  dispatch_intergration:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Collect gauge frames
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{p=1;for(i=1;i<=1750800;i++)p=(p*i)%1000000007;print p}'; true ; } > /tmp/data/11.bin
+            echo "gate intergration: $(wc -c </tmp/data/11.bin) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - 11.bin
+  intergration:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load artifact
+          command: |
+            cat /tmp/data/11.bin
+      - run:
+          name: Prepare source
+          command: git clone --depth 1 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Fetch corpus
+          command: tar -I bzip2 -xf release-pkg.tar.bz2
+      - run:
+          name: Index artifacts
+          command: cat /proc/cpuinfo | head -5
+      - run:
+          name: Finalize build
+          command: g++ --version
+      - run:
+          name: Package artifacts
+          command: g++ --version
+      - run:
+          no_output_timeout: 80m
+          command: env ./adapter
+  step1_sam-run:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Project tail bytes
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; yes abc | head -n 127662 | sha256sum; true ; } > /tmp/data/bundle.pkg
+            echo "gate sam-run: $(wc -c </tmp/data/bundle.pkg) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - bundle.pkg
+  sam-run:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load artifact
+          command: |
+            cat /tmp/data/bundle.pkg
+      - run:
+          name: Prepare source
+          command: git clone --depth 1 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Fetch corpus
+          command: tar -I bzip2 -xf release-pkg.tar.bz2
+      - run:
+          name: Index artifacts
+          command: cat /proc/cpuinfo | head -5
+      - run:
+          name: Finalize build
+          command: g++ --version
+      - run:
+          name: Package artifacts
+          command: g++ --version
+      - run:
+          no_output_timeout: 80m
+          command: env ./adapter
+  staging_v4-nightly2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Normalize counter rings
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; seq 1 149691 | awk '{print $1 % 7}' | sort | uniq -c | wc -l; true ; } > /tmp/data/big_step_output.log
+            echo "gate v4-nightly2: $(wc -c </tmp/data/big_step_output.log) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - big_step_output.log
+  v4-nightly2:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load artifact
+          command: |
+            cat /tmp/data/big_step_output.log
+      - run:
+          name: Prepare source
+          command: git clone --depth 1 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Fetch corpus
+          command: tar -I bzip2 -xf release-pkg.tar.bz2
+      - run:
+          name: Index artifacts
+          command: cat /proc/cpuinfo | head -5
+      - run:
+          name: Finalize build
+          command: g++ --version
+      - run:
+          name: Package artifacts
+          command: g++ --version
+      - run:
+          no_output_timeout: 80m
+          command: env ./adapter
+  precheck_UAT_BUILD_7:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Fuse row chunks
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; dd if=/dev/urandom bs=4k count=210 2>/dev/null | md5sum; true ; } > /tmp/data/.ok
+            echo "gate UAT_BUILD_7: $(wc -c </tmp/data/.ok) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - .ok
+  UAT_BUILD_7:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load artifact
+          command: |
+            cat /tmp/data/.ok
+      - run:
+          name: Prepare source
+          command: git clone --depth 1 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Fetch corpus
+          command: tar -I bzip2 -xf release-pkg.tar.bz2
+      - run:
+          name: Index artifacts
+          command: cat /proc/cpuinfo | head -5
+      - run:
+          name: Finalize build
+          command: g++ --version
+      - run:
+          name: Package artifacts
+          command: g++ --version
+      - run:
+          no_output_timeout: 80m
+          command: env ./adapter
+  fetcher_bug-174:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Measure throughput
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; head -c 15728640 /dev/urandom | tar cz - 2>/dev/null | wc -c; true ; } > /tmp/data/step-pass.txt
+            echo "gate bug-174: $(wc -c </tmp/data/step-pass.txt) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - step-pass.txt
+  bug-174:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load artifact
+          command: |
+            cat /tmp/data/step-pass.txt
+      - run:
+          name: Prepare source
+          command: git clone --depth 1 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Fetch corpus
+          command: tar -I bzip2 -xf release-pkg.tar.bz2
+      - run:
+          name: Index artifacts
+          command: cat /proc/cpuinfo | head -5
+      - run:
+          name: Finalize build
+          command: g++ --version
+      - run:
+          name: Package artifacts
+          command: g++ --version
+      - run:
+          no_output_timeout: 80m
+          command: env ./adapter
+  bundle_rollout:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: Walk sorted keys
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; seq 1 700 | awk '{print toupper($0)}' | md5sum; true ; } > /tmp/data/gate-ok.log
+            echo "gate rollout: $(wc -c </tmp/data/gate-ok.log) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - gate-ok.log
+  rollout:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load artifact
+          command: |
+            cat /tmp/data/gate-ok.log
+      - run:
+          name: Prepare source
+          command: git clone --depth 1 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Fetch corpus
+          command: tar -I bzip2 -xf release-pkg.tar.bz2
+      - run:
+          name: Index artifacts
+          command: cat /proc/cpuinfo | head -5
+      - run:
+          name: Finalize build
+          command: g++ --version
+      - run:
+          name: Package artifacts
+          command: g++ --version
+      - run:
+          no_output_timeout: 80m
+          command: env ./adapter
+  teardown_andromeda-rc:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Enumerate token pairs
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; seq 1 200463 | awk '{print $1 % 7}' | sort | uniq -c | wc -l; true ; } > /tmp/data/phase-ok.sig
+            echo "gate andromeda-rc: $(wc -c </tmp/data/phase-ok.sig) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - phase-ok.sig
+  andromeda-rc:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load artifact
+          command: |
+            cat /tmp/data/phase-ok.sig
+      - run:
+          name: Prepare source
+          command: git clone --depth 1 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Fetch corpus
+          command: tar -I bzip2 -xf release-pkg.tar.bz2
+      - run:
+          name: Index artifacts
+          command: cat /proc/cpuinfo | head -5
+      - run:
+          name: Finalize build
+          command: g++ --version
+      - run:
+          name: Package artifacts
+          command: g++ --version
+      - run:
+          no_output_timeout: 80m
+          command: env ./adapter
+  syncer_RUN_STG:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Compact small objects
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; seq 1 336307 | awk '{print $1 % 7}' | sort | uniq -c | wc -l; true ; } > /tmp/data/buffer.raw
+            echo "gate RUN_STG: $(wc -c </tmp/data/buffer.raw) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - buffer.raw
+  RUN_STG:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load artifact
+          command: |
+            cat /tmp/data/buffer.raw
+      - run:
+          name: Prepare source
+          command: git clone --depth 1 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Fetch corpus
+          command: tar -I bzip2 -xf release-pkg.tar.bz2
+      - run:
+          name: Index artifacts
+          command: cat /proc/cpuinfo | head -5
+      - run:
+          name: Finalize build
+          command: g++ --version
+      - run:
+          name: Package artifacts
+          command: g++ --version
+      - run:
+          no_output_timeout: 80m
+          command: env ./adapter
+  A_py310-cov:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Trace call sequence
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; seq 1 401334 | awk 'NR%6==0{sum+=$1}END{print sum}'; true ; } > /tmp/data/DONE
+            echo "gate py310-cov: $(wc -c </tmp/data/DONE) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - DONE
+  py310-cov:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load artifact
+          command: |
+            cat /tmp/data/DONE
+      - run:
+          name: Prepare source
+          command: git clone --depth 1 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Fetch corpus
+          command: tar -I bzip2 -xf release-pkg.tar.bz2
+      - run:
+          name: Index artifacts
+          command: cat /proc/cpuinfo | head -5
+      - run:
+          name: Finalize build
+          command: g++ --version
+      - run:
+          name: Package artifacts
+          command: g++ --version
+      - run:
+          no_output_timeout: 80m
+          command: env ./adapter
+  runner_rocket:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Score sort stability
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; ( for i in $(seq 1 6093); do printf "%08x\n" $RANDOM; done ) | sort | md5sum; true ; } > /tmp/data/stage-pass.log
+            echo "gate rocket: $(wc -c </tmp/data/stage-pass.log) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - stage-pass.log
+  rocket:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load artifact
+          command: |
+            cat /tmp/data/stage-pass.log
+      - run:
+          name: Prepare source
+          command: git clone --depth 1 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Fetch corpus
+          command: tar -I bzip2 -xf release-pkg.tar.bz2
+      - run:
+          name: Index artifacts
+          command: cat /proc/cpuinfo | head -5
+      - run:
+          name: Finalize build
+          command: g++ --version
+      - run:
+          name: Package artifacts
+          command: g++ --version
+      - run:
+          no_output_timeout: 80m
+          command: env ./adapter
+  auditor_lets-go:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Compute aggregate hash
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; dd if=/dev/urandom bs=4k count=20 2>/dev/null | md5sum; true ; } > /tmp/data/cache.dat
+            echo "gate lets-go: $(wc -c </tmp/data/cache.dat) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - cache.dat
+  lets-go:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load artifact
+          command: |
+            cat /tmp/data/cache.dat
+      - run:
+          name: Prepare source
+          command: git clone --depth 1 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Fetch corpus
+          command: tar -I bzip2 -xf release-pkg.tar.bz2
+      - run:
+          name: Index artifacts
+          command: cat /proc/cpuinfo | head -5
+      - run:
+          name: Finalize build
+          command: g++ --version
+      - run:
+          name: Package artifacts
+          command: g++ --version
+      - run:
+          no_output_timeout: 80m
+          command: env ./adapter
+  redo_v3-canary2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: Expand parameter grid
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; head -c 28311552 /dev/urandom | md5sum; true ; } > /tmp/data/stats.json
+            echo "gate v3-canary2: $(wc -c </tmp/data/stats.json) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - stats.json
+  v3-canary2:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load artifact
+          command: |
+            cat /tmp/data/stats.json
+      - run:
+          name: Prepare source
+          command: git clone --depth 1 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Fetch corpus
+          command: tar -I bzip2 -xf release-pkg.tar.bz2
+      - run:
+          name: Index artifacts
+          command: cat /proc/cpuinfo | head -5
+      - run:
+          name: Finalize build
+          command: g++ --version
+      - run:
+          name: Package artifacts
+          command: g++ --version
+      - run:
+          no_output_timeout: 80m
+          command: env ./adapter
+  precheck_vega-alpha:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Enumerate line counts
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; ( for i in $(seq 1 8671); do echo "row-$i-$RANDOM"; done ) | md5sum; true ; } > /tmp/data/artifact
+            echo "gate vega-alpha: $(wc -c </tmp/data/artifact) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - artifact
+  vega-alpha:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load artifact
+          command: |
+            cat /tmp/data/artifact
+      - run:
+          name: Prepare source
+          command: git clone --depth 1 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Fetch corpus
+          command: tar -I bzip2 -xf release-pkg.tar.bz2
+      - run:
+          name: Index artifacts
+          command: cat /proc/cpuinfo | head -5
+      - run:
+          name: Finalize build
+          command: g++ --version
+      - run:
+          name: Package artifacts
+          command: g++ --version
+      - run:
+          no_output_timeout: 80m
+          command: env ./adapter
+  red_blast-off:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Pivot result stream
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; seq 1 14922 | awk 'NR>9093 && NR<14078{s+=$1}END{print s}'; true ; } > /tmp/data/log.log
+            echo "gate blast-off: $(wc -c </tmp/data/log.log) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - log.log
+  blast-off:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load artifact
+          command: |
+            cat /tmp/data/log.log
+      - run:
+          name: Prepare source
+          command: git clone --depth 1 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Fetch corpus
+          command: tar -I bzip2 -xf release-pkg.tar.bz2
+      - run:
+          name: Index artifacts
+          command: cat /proc/cpuinfo | head -5
+      - run:
+          name: Finalize build
+          command: g++ --version
+      - run:
+          name: Package artifacts
+          command: g++ --version
+      - run:
+          no_output_timeout: 80m
+          command: env ./adapter
+  audit_strated:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Verify fixture integrity
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; seq 1 522950 | awk '{a[$1%17]++}END{for(k in a) print k,a[k]}' | sort -n; true ; } > /tmp/data/gate-ok.out
+            echo "gate strated: $(wc -c </tmp/data/gate-ok.out) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - gate-ok.out
+  strated:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load artifact
+          command: |
+            cat /tmp/data/gate-ok.out
+      - run:
+          name: Prepare source
+          command: git clone --depth 1 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Fetch corpus
+          command: tar -I bzip2 -xf release-pkg.tar.bz2
+      - run:
+          name: Index artifacts
+          command: cat /proc/cpuinfo | head -5
+      - run:
+          name: Finalize build
+          command: g++ --version
+      - run:
+          name: Package artifacts
+          command: g++ --version
+      - run:
+          no_output_timeout: 80m
+          command: env ./adapter
+  postbuild_jess-ci:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Snapshot session env
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{for(a=1;a<=3;a++)for(b=1;b<=1526;b++)s+=a*b;print s}'; true ; } > /tmp/data/178.data
+            echo "gate jess-ci: $(wc -c </tmp/data/178.data) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - 178.data
+  jess-ci:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load artifact
+          command: |
+            cat /tmp/data/178.data
+      - run:
+          name: Prepare source
+          command: git clone --depth 1 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Fetch corpus
+          command: tar -I bzip2 -xf release-pkg.tar.bz2
+      - run:
+          name: Index artifacts
+          command: cat /proc/cpuinfo | head -5
+      - run:
+          name: Finalize build
+          command: g++ --version
+      - run:
+          name: Package artifacts
+          command: g++ --version
+      - run:
+          no_output_timeout: 80m
+          command: env ./adapter
+  checker_bun-vet:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Audit path segments
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; cat /dev/urandom | tr -dc '[:xdigit:]' | head -c 21504 | wc -c; true ; } > /tmp/data/2024-12-06.data
+            echo "gate bun-vet: $(wc -c </tmp/data/2024-12-06.data) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - 2024-12-06.data
+  bun-vet:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load artifact
+          command: |
+            cat /tmp/data/2024-12-06.data
+      - run:
+          name: Prepare source
+          command: git clone --depth 1 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Fetch corpus
+          command: tar -I bzip2 -xf release-pkg.tar.bz2
+      - run:
+          name: Index artifacts
+          command: cat /proc/cpuinfo | head -5
+      - run:
+          name: Finalize build
+          command: g++ --version
+      - run:
+          name: Package artifacts
+          command: g++ --version
+      - run:
+          no_output_timeout: 80m
+          command: env ./adapter
+  canary1_luna-verify:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: Compute spill delta
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; yes "x$RANDOM" | head -n 407715 | md5sum; true ; } > /tmp/data/2024-12-25.data
+            echo "gate luna-verify: $(wc -c </tmp/data/2024-12-25.data) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - 2024-12-25.data
+  luna-verify:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load artifact
+          command: |
+            cat /tmp/data/2024-12-25.data
+      - run:
+          name: Prepare source
+          command: git clone --depth 1 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Fetch corpus
+          command: tar -I bzip2 -xf release-pkg.tar.bz2
+      - run:
+          name: Index artifacts
+          command: cat /proc/cpuinfo | head -5
+      - run:
+          name: Finalize build
+          command: g++ --version
+      - run:
+          name: Package artifacts
+          command: g++ --version
+      - run:
+          no_output_timeout: 80m
+          command: env ./adapter
+  A_nov7-rev:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Rotate ring buffer
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; dd if=/dev/urandom bs=4k count=150 2>/dev/null | md5sum; true ; } > /tmp/data/audit.txt
+            echo "gate nov7-rev: $(wc -c </tmp/data/audit.txt) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - audit.txt
+  nov7-rev:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load artifact
+          command: |
+            cat /tmp/data/audit.txt
+      - run:
+          name: Prepare source
+          command: git clone --depth 1 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Fetch corpus
+          command: tar -I bzip2 -xf release-pkg.tar.bz2
+      - run:
+          name: Index artifacts
+          command: cat /proc/cpuinfo | head -5
+      - run:
+          name: Finalize build
+          command: g++ --version
+      - run:
+          name: Package artifacts
+          command: g++ --version
+      - run:
+          no_output_timeout: 80m
+          command: env ./adapter
+  ctx2_v7-alpha5:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Enumerate bucket keys
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; tr -dc 'a-z0-9 ' </dev/urandom | head -c 2355200 | tr ' ' '\n' | sort | uniq | wc -l; true ; } > /tmp/data/78.blob
+            echo "gate v7-alpha5: $(wc -c </tmp/data/78.blob) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - 78.blob
+  v7-alpha5:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load artifact
+          command: |
+            cat /tmp/data/78.blob
+      - run:
+          name: Prepare source
+          command: git clone --depth 1 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Fetch corpus
+          command: tar -I bzip2 -xf release-pkg.tar.bz2
+      - run:
+          name: Index artifacts
+          command: cat /proc/cpuinfo | head -5
+      - run:
+          name: Finalize build
+          command: g++ --version
+      - run:
+          name: Package artifacts
+          command: g++ --version
+      - run:
+          no_output_timeout: 80m
+          command: env ./adapter
+  db_hyperion-v2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Format readable table
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; seq 1 486538 | awk 'NR>2872 && NR<34374{s+=$1}END{print s}'; true ; } > /tmp/data/checkpoint-E.pickle
+            echo "gate hyperion-v2: $(wc -c </tmp/data/checkpoint-E.pickle) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - checkpoint-E.pickle
+  hyperion-v2:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load artifact
+          command: |
+            cat /tmp/data/checkpoint-E.pickle
+      - run:
+          name: Prepare source
+          command: git clone --depth 1 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Fetch corpus
+          command: tar -I bzip2 -xf release-pkg.tar.bz2
+      - run:
+          name: Index artifacts
+          command: cat /proc/cpuinfo | head -5
+      - run:
+          name: Finalize build
+          command: g++ --version
+      - run:
+          name: Package artifacts
+          command: g++ --version
+      - run:
+          no_output_timeout: 80m
+          command: env ./adapter
+  reserve_yolo:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Materialize sort order
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; dd if=/dev/zero bs=1M count=27 2>/dev/null | sha256sum; true ; } > /tmp/data/checkpoint-alt.pkl
+            echo "gate yolo: $(wc -c </tmp/data/checkpoint-alt.pkl) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - checkpoint-alt.pkl
+  yolo:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load artifact
+          command: |
+            cat /tmp/data/checkpoint-alt.pkl
+      - run:
+          name: Prepare source
+          command: git clone --depth 1 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Fetch corpus
+          command: tar -I bzip2 -xf release-pkg.tar.bz2
+      - run:
+          name: Index artifacts
+          command: cat /proc/cpuinfo | head -5
+      - run:
+          name: Finalize build
+          command: g++ --version
+      - run:
+          name: Package artifacts
+          command: g++ --version
+      - run:
+          no_output_timeout: 80m
+          command: env ./adapter
+  phase_INFRA-480:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Deflate payload chunk
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; seq 1 7000 | awk '{for(i=1;i<=5;i++)s+=$1*i}END{print s}'; true ; } > /tmp/data/phase-complete.out
+            echo "gate INFRA-480: $(wc -c </tmp/data/phase-complete.out) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - phase-complete.out
+  INFRA-480:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load artifact
+          command: |
+            cat /tmp/data/phase-complete.out
+      - run:
+          name: Prepare source
+          command: git clone --depth 1 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Fetch corpus
+          command: tar -I bzip2 -xf release-pkg.tar.bz2
+      - run:
+          name: Index artifacts
+          command: cat /proc/cpuinfo | head -5
+      - run:
+          name: Finalize build
+          command: g++ --version
+      - run:
+          name: Package artifacts
+          command: g++ --version
+      - run:
+          no_output_timeout: 80m
+          command: env ./adapter
+  spinner_chore-1418:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: Scan vector span
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; yes "x$RANDOM" | head -n 113689 | md5sum; true ; } > /tmp/data/838.txt
+            echo "gate chore-1418: $(wc -c </tmp/data/838.txt) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - 838.txt
+  chore-1418:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load artifact
+          command: |
+            cat /tmp/data/838.txt
+      - run:
+          name: Prepare source
+          command: git clone --depth 1 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Fetch corpus
+          command: tar -I bzip2 -xf release-pkg.tar.bz2
+      - run:
+          name: Index artifacts
+          command: cat /proc/cpuinfo | head -5
+      - run:
+          name: Finalize build
+          command: g++ --version
+      - run:
+          name: Package artifacts
+          command: g++ --version
+      - run:
+          no_output_timeout: 80m
+          command: env ./adapter
+  drain_hotfix-1031:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Compile stats index
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; tr -dc 'a-z0-9 ' </dev/urandom | head -c 2764800 | tr ' ' '\n' | sort | uniq | wc -l; true ; } > /tmp/data/42.bin
+            echo "gate hotfix-1031: $(wc -c </tmp/data/42.bin) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - 42.bin
+  hotfix-1031:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load artifact
+          command: |
+            cat /tmp/data/42.bin
+      - run:
+          name: Prepare source
+          command: git clone --depth 1 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Fetch corpus
+          command: tar -I bzip2 -xf release-pkg.tar.bz2
+      - run:
+          name: Index artifacts
+          command: cat /proc/cpuinfo | head -5
+      - run:
+          name: Finalize build
+          command: g++ --version
+      - run:
+          name: Package artifacts
+          command: g++ --version
+      - run:
+          no_output_timeout: 80m
+          command: env ./adapter
+  install_INIT_DEV:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Measure dwell time
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; yes 'line' | head -n 454475 | awk '{print NR, $0}' | tail -1; true ; } > /tmp/data/main_step_output.out
+            echo "gate INIT_DEV: $(wc -c </tmp/data/main_step_output.out) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - main_step_output.out
+  INIT_DEV:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load artifact
+          command: |
+            cat /tmp/data/main_step_output.out
+      - run:
+          name: Prepare source
+          command: git clone --depth 1 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Fetch corpus
+          command: tar -I bzip2 -xf release-pkg.tar.bz2
+      - run:
+          name: Index artifacts
+          command: cat /proc/cpuinfo | head -5
+      - run:
+          name: Finalize build
+          command: g++ --version
+      - run:
+          name: Package artifacts
+          command: g++ --version
+      - run:
+          no_output_timeout: 80m
+          command: env ./adapter
+  cacher_promote:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Hoist constant row
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; dd if=/dev/urandom bs=4k count=100 2>/dev/null | md5sum; true ; } > /tmp/data/main_job_output_v5.out
+            echo "gate promote: $(wc -c </tmp/data/main_job_output_v5.out) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - main_job_output_v5.out
+  promote:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load artifact
+          command: |
+            cat /tmp/data/main_job_output_v5.out
+      - run:
+          name: Prepare source
+          command: git clone --depth 1 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Fetch corpus
+          command: tar -I bzip2 -xf release-pkg.tar.bz2
+      - run:
+          name: Index artifacts
+          command: cat /proc/cpuinfo | head -5
+      - run:
+          name: Finalize build
+          command: g++ --version
+      - run:
+          name: Package artifacts
+          command: g++ --version
+      - run:
+          no_output_timeout: 80m
+          command: env ./adapter
+  reload_fix-5316:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Enumerate scalar triples
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; yes 'line' | head -n 428345 | awk '{print NR, $0}' | tail -1; true ; } > /tmp/data/.marker
+            echo "gate fix-5316: $(wc -c </tmp/data/.marker) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - .marker
+  fix-5316:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load artifact
+          command: |
+            cat /tmp/data/.marker
+      - run:
+          name: Prepare source
+          command: git clone --depth 1 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Fetch corpus
+          command: tar -I bzip2 -xf release-pkg.tar.bz2
+      - run:
+          name: Index artifacts
+          command: cat /proc/cpuinfo | head -5
+      - run:
+          name: Finalize build
+          command: g++ --version
+      - run:
+          name: Package artifacts
+          command: g++ --version
+      - run:
+          no_output_timeout: 80m
+          command: env ./adapter
+  phase_LAB_STAGE_6:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Interleave stream pairs
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; tr -dc '0-9A-F' </dev/urandom | head -c 266240 | fold -w4 | sort -R 2>/dev/null | head -c 200 || true; echo done; true ; } > /tmp/data/PASS.txt
+            echo "gate LAB_STAGE_6: $(wc -c </tmp/data/PASS.txt) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - PASS.txt
+  LAB_STAGE_6:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load artifact
+          command: |
+            cat /tmp/data/PASS.txt
+      - run:
+          name: Prepare source
+          command: git clone --depth 1 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Fetch corpus
+          command: tar -I bzip2 -xf release-pkg.tar.bz2
+      - run:
+          name: Index artifacts
+          command: cat /proc/cpuinfo | head -5
+      - run:
+          name: Finalize build
+          command: g++ --version
+      - run:
+          name: Package artifacts
+          command: g++ --version
+      - run:
+          no_output_timeout: 80m
+          command: env ./adapter
+
+  A_bun-vet_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Collate adjacent chunks
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; cat /dev/urandom | tr -dc '[:xdigit:]' | head -c 3072 | wc -c; true ; } > /tmp/data/2024-12-06.data
+            echo "gate bun-vet: $(wc -c </tmp/data/2024-12-06.data) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - 2024-12-06.data
+  ensure_luna-verify_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: Reconcile output files
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; ( echo "hdr"; seq 1 20790; echo "ftr" ) | wc -l; true ; } > /tmp/data/2024-12-25.data
+            echo "gate luna-verify: $(wc -c </tmp/data/2024-12-25.data) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - 2024-12-25.data
+  provision_v6-preview4_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: Churn allocator pool
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{p=1;for(i=1;i<=1591200;i++)p=(p*i)%1000000007;print p}'; true ; } > /tmp/data/31.data
+            echo "gate v6-preview4: $(wc -c </tmp/data/31.data) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - 31.data
+  postcheck_LAB_STAGE_6_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Checkpoint context
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; head -c 28311552 /dev/urandom | sha256sum; true ; } > /tmp/data/PASS.txt
+            echo "gate LAB_STAGE_6: $(wc -c </tmp/data/PASS.txt) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - PASS.txt
+  round1_intergration_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Collect byte metrics
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; head -c 24117248 /dev/urandom | gzip -1 | wc -c; true ; } > /tmp/data/11.bin
+            echo "gate intergration: $(wc -c </tmp/data/11.bin) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - 11.bin
+  tap_vega-alpha_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Shape histogram tail
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; seq 1 493540 | paste - - - - | wc -l; true ; } > /tmp/data/artifact
+            echo "gate vega-alpha: $(wc -c </tmp/data/artifact) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - artifact
+  warmer_bug-174_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Mirror arena state
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; seq 1 105338 | awk '{s+=$1}END{print s}'; true ; } > /tmp/data/step-pass.txt
+            echo "gate bug-174: $(wc -c </tmp/data/step-pass.txt) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - step-pass.txt
+  reup_INIT_DEV_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Reorder index entries
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; head -c 20M /dev/urandom | base64 | wc -c; true ; } > /tmp/data/main_step_output.out
+            echo "gate INIT_DEV: $(wc -c </tmp/data/main_step_output.out) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - main_step_output.out
+  step2_rollout_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: Score branch coverage
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; head -c 12582912 /dev/urandom | od -An -x | wc -w; true ; } > /tmp/data/gate-ok.log
+            echo "gate rollout: $(wc -c </tmp/data/gate-ok.log) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - gate-ok.log
+  verify_v7-alpha5_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Freeze working set
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; cat /dev/urandom | head -c 7168000 | base64 | head -c 200 | wc -c; true ; } > /tmp/data/78.blob
+            echo "gate v7-alpha5: $(wc -c </tmp/data/78.blob) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - 78.blob
+  prefetch_nov7-rev_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Audit fixture rows
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; seq 1 436452 | sha1sum; true ; } > /tmp/data/audit.txt
+            echo "gate nov7-rev: $(wc -c </tmp/data/audit.txt) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - audit.txt
+  phase1_INFRA-480_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Fold data streams
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; ( for i in $(seq 1 28038); do echo "row-$i-$RANDOM"; done ) | md5sum; true ; } > /tmp/data/phase-complete.out
+            echo "gate INFRA-480: $(wc -c </tmp/data/phase-complete.out) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - phase-complete.out
+  resync_hotfix-1031_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Partition record set
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; seq 1 1284500 | awk '{a[$1%17]++}END{for(k in a) print k,a[k]}' | sort -n; true ; } > /tmp/data/42.bin
+            echo "gate hotfix-1031: $(wc -c </tmp/data/42.bin) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - 42.bin
+  step2_v3-canary2_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: Rotate build log
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; tr -dc '0-9' </dev/urandom | head -c 409600 | wc -c; true ; } > /tmp/data/stats.json
+            echo "gate v3-canary2: $(wc -c </tmp/data/stats.json) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - stats.json
+  drain_lets-go_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Walk directory tree
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; seq 1 84972 | tr '0-9' 'a-j' | wc -c; true ; } > /tmp/data/cache.dat
+            echo "gate lets-go: $(wc -c </tmp/data/cache.dat) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - cache.dat
+  validate_sam-run_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Chunk raw buffer
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; ( echo "hdr"; seq 1 256110; echo "ftr" ) | wc -l; true ; } > /tmp/data/bundle.pkg
+            echo "gate sam-run: $(wc -c </tmp/data/bundle.pkg) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - bundle.pkg
+  route_andromeda-rc_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Collate dictionary rows
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; seq 1 1099500 | awk '{a[$1%17]++}END{for(k in a) print k,a[k]}' | sort -n; true ; } > /tmp/data/phase-ok.sig
+            echo "gate andromeda-rc: $(wc -c </tmp/data/phase-ok.sig) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - phase-ok.sig
+  prefetch_UAT_BUILD_7_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Store intermediate blob
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; cat /dev/urandom | tr -dc 'a-f0-9' | head -c 194560 | fold -w16 | awk '!seen[$0]++' | wc -l; true ; } > /tmp/data/.ok
+            echo "gate UAT_BUILD_7: $(wc -c </tmp/data/.ok) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - .ok
+  cleanup_py310-cov_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Fuzz boundary edges
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{for(i=0;i<151295;i++){s=sprintf("%d",i*13); for(j=1;j<=length(s);j++)c++};print c}'; true ; } > /tmp/data/DONE
+            echo "gate py310-cov: $(wc -c </tmp/data/DONE) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - DONE
+  route_blast-off_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Dispatch work units
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; tr -dc 'a-z0-9 ' </dev/urandom | head -c 2252800 | tr ' ' '\n' | sort | uniq | wc -l; true ; } > /tmp/data/log.log
+            echo "gate blast-off: $(wc -c </tmp/data/log.log) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - log.log
+  warmer_yolo_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Inflate reference set
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; dd if=/dev/urandom bs=1k count=2500 2>/dev/null | gzip -6 | wc -c; true ; } > /tmp/data/checkpoint-alt.pkl
+            echo "gate yolo: $(wc -c </tmp/data/checkpoint-alt.pkl) bytes total"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - checkpoint-alt.pkl
+workflows:
+  matrix:
+    jobs:
+      - checker_bun-vet
+      - A_bun-vet_2:
+          requires:
+            - checker_bun-vet
+      - bun-vet:
+          requires:
+            - A_bun-vet_2
+      - canary1_luna-verify:
+          requires:
+            - A_bun-vet_2
+      - ensure_luna-verify_2:
+          requires:
+            - canary1_luna-verify
+      - luna-verify:
+          requires:
+            - ensure_luna-verify_2
+      - route_v6-preview4:
+          requires:
+            - ensure_luna-verify_2
+      - provision_v6-preview4_2:
+          requires:
+            - route_v6-preview4
+      - v6-preview4:
+          requires:
+            - provision_v6-preview4_2
+      - phase_LAB_STAGE_6:
+          requires:
+            - provision_v6-preview4_2
+      - postcheck_LAB_STAGE_6_2:
+          requires:
+            - phase_LAB_STAGE_6
+      - LAB_STAGE_6:
+          requires:
+            - postcheck_LAB_STAGE_6_2
+      - dispatch_intergration:
+          requires:
+            - postcheck_LAB_STAGE_6_2
+      - round1_intergration_2:
+          requires:
+            - dispatch_intergration
+      - intergration:
+          requires:
+            - round1_intergration_2
+      - precheck_vega-alpha:
+          requires:
+            - round1_intergration_2
+      - tap_vega-alpha_2:
+          requires:
+            - precheck_vega-alpha
+      - vega-alpha:
+          requires:
+            - tap_vega-alpha_2
+      - fetcher_bug-174
+      - warmer_bug-174_2:
+          requires:
+            - fetcher_bug-174
+      - bug-174:
+          requires:
+            - warmer_bug-174_2
+      - install_INIT_DEV:
+          requires:
+            - warmer_bug-174_2
+      - reup_INIT_DEV_2:
+          requires:
+            - install_INIT_DEV
+      - INIT_DEV:
+          requires:
+            - reup_INIT_DEV_2
+      - bundle_rollout:
+          requires:
+            - reup_INIT_DEV_2
+      - step2_rollout_2:
+          requires:
+            - bundle_rollout
+      - rollout:
+          requires:
+            - step2_rollout_2
+      - ctx2_v7-alpha5:
+          requires:
+            - step2_rollout_2
+      - verify_v7-alpha5_2:
+          requires:
+            - ctx2_v7-alpha5
+      - v7-alpha5:
+          requires:
+            - verify_v7-alpha5_2
+      - A_nov7-rev:
+          requires:
+            - verify_v7-alpha5_2
+      - prefetch_nov7-rev_2:
+          requires:
+            - A_nov7-rev
+      - nov7-rev:
+          requires:
+            - prefetch_nov7-rev_2
+      - phase_INFRA-480
+      - phase1_INFRA-480_2:
+          requires:
+            - phase_INFRA-480
+      - INFRA-480:
+          requires:
+            - phase1_INFRA-480_2
+      - drain_hotfix-1031:
+          requires:
+            - phase1_INFRA-480_2
+      - resync_hotfix-1031_2:
+          requires:
+            - drain_hotfix-1031
+      - hotfix-1031:
+          requires:
+            - resync_hotfix-1031_2
+      - redo_v3-canary2:
+          requires:
+            - resync_hotfix-1031_2
+      - step2_v3-canary2_2:
+          requires:
+            - redo_v3-canary2
+      - v3-canary2:
+          requires:
+            - step2_v3-canary2_2
+      - auditor_lets-go:
+          requires:
+            - step2_v3-canary2_2
+      - drain_lets-go_2:
+          requires:
+            - auditor_lets-go
+      - lets-go:
+          requires:
+            - drain_lets-go_2
+      - step1_sam-run:
+          requires:
+            - drain_lets-go_2
+      - validate_sam-run_2:
+          requires:
+            - step1_sam-run
+      - sam-run:
+          requires:
+            - validate_sam-run_2
+      - teardown_andromeda-rc
+      - route_andromeda-rc_2:
+          requires:
+            - teardown_andromeda-rc
+      - andromeda-rc:
+          requires:
+            - route_andromeda-rc_2
+      - precheck_UAT_BUILD_7:
+          requires:
+            - route_andromeda-rc_2
+      - prefetch_UAT_BUILD_7_2:
+          requires:
+            - precheck_UAT_BUILD_7
+      - UAT_BUILD_7:
+          requires:
+            - prefetch_UAT_BUILD_7_2
+      - A_py310-cov:
+          requires:
+            - prefetch_UAT_BUILD_7_2
+      - cleanup_py310-cov_2:
+          requires:
+            - A_py310-cov
+      - py310-cov:
+          requires:
+            - cleanup_py310-cov_2
+      - red_blast-off:
+          requires:
+            - cleanup_py310-cov_2
+      - route_blast-off_2:
+          requires:
+            - red_blast-off
+      - blast-off:
+          requires:
+            - route_blast-off_2
+      - reserve_yolo:
+          requires:
+            - route_blast-off_2
+      - warmer_yolo_2:
+          requires:
+            - reserve_yolo
+      - yolo:
+          requires:
+            - warmer_yolo_2
+      - cacher_promote
+      - promote:
+          requires:
+            - cacher_promote
+      - syncer_RUN_STG
+      - RUN_STG:
+          requires:
+            - syncer_RUN_STG
+      - spinner_chore-1418:
+          requires:
+            - syncer_RUN_STG
+      - chore-1418:
+          requires:
+            - spinner_chore-1418
+      - reload_fix-5316:
+          requires:
+            - spinner_chore-1418
+      - fix-5316:
+          requires:
+            - reload_fix-5316
+      - runner_rocket:
+          requires:
+            - reload_fix-5316
+      - rocket:
+          requires:
+            - runner_rocket
+      - postbuild_jess-ci:
+          requires:
+            - runner_rocket
+      - jess-ci:
+          requires:
+            - postbuild_jess-ci
+      - audit_strated:
+          requires:
+            - postbuild_jess-ci
+      - strated:
+          requires:
+            - audit_strated
+      - db_hyperion-v2:
+          requires:
+            - audit_strated
+      - hyperion-v2:
+          requires:
+            - db_hyperion-v2
+      - staging_v4-nightly2:
+          requires:
+            - db_hyperion-v2
+      - v4-nightly2:
+          requires:
+            - staging_v4-nightly2
